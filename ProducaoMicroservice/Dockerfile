@@ -7,7 +7,7 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 COPY ["ProducaoMicroservice.csproj", "."]
-RUN dotnet restore "./ProducaoMicroservice.csproj"
+RUN dotnet restore "ProducaoMicroservice/ProducaoMicroservice.csproj"
 
 COPY . .
 
@@ -21,7 +21,7 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 
-# Definir vari·vel de ambiente para o LocalStack
+# Definir vari√°vel de ambiente para o LocalStack
 ENV AWS_SERVICE_URL=http://localstack:4566
 
 ENTRYPOINT ["dotnet", "ProducaoMicroservice.dll"]
