@@ -1,0 +1,39 @@
+﻿apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: producao-microservice-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: producao-microservice
+  template:
+    metadata:
+      labels:
+        app: producao-microservice
+    spec:
+      containers:
+        - name: producao-microservice
+          image: producao:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: "Development"
+            - name: ConnectionStrings__PostgresConnection
+              value: "Host=postgres-db;Port=5432;Database=producao_db;Username=fiap;Password=fiap@123"
+            - name: SQS_ENDPOINT
+              value: "http://localstack:4566"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: producao-microservice-service
+spec:
+  selector:
+    app: producao-microservice
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+  type: ClusterIP

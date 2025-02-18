@@ -1,0 +1,54 @@
+﻿version: '3.8'
+
+services:
+  localstack:
+    image: localstack/localstack:latest
+    container_name: localstack
+    environment:
+      - SERVICES=sqs  
+      - DEFAULT_REGION=us-east-1  
+    ports:
+      - "4566:4566"  
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock  
+    networks:
+      - localstack-network
+
+  postgres-db:
+    image: postgres:latest
+    container_name: postgres-db
+    environment:
+      POSTGRES_USER: fiap
+      POSTGRES_PASSWORD: fiap@123
+      POSTGRES_DB: producao_db
+    ports:
+      - "5432:5432"  
+    volumes:
+      - postgres_data:/var/lib/postgresql/data 
+    networks:
+      - localstack-network
+
+  pedidos_microservice:
+    image: producao_microservice  
+    build:
+      context: .  
+      dockerfile: Dockerfile  
+    container_name: producao_microservice  
+    ports:
+      - "8080:8080"  
+    depends_on:
+      - postgres-db  
+      - localstack  
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development  
+      - ConnectionStrings__PostgresConnection=Host=postgres-db;Port=5432;Database=producao_db;Username=fiap;Password=fiap@123  
+      - SQS_ENDPOINT=http://localstack:4566  
+    networks:
+      - localstack-network
+
+volumes:
+  postgres_data:
+
+networks:
+  localstack-network:  
+    driver: bridge
