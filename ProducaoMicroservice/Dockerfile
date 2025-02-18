@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS base
 WORKDIR /app
 EXPOSE 8080
 
@@ -6,19 +6,25 @@ EXPOSE 8080
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-COPY ["ProducaoMicroservice/ProducaoMicroservice.csproj", "."]
+# Copiar apenas o .csproj do projeto principal
+COPY ["ProducaoMicroservice/ProducaoMicroservice.csproj", "./"]
+
+# Restaurar dependências do projeto principal
 RUN dotnet restore "ProducaoMicroservice.csproj"
 
-COPY ProducaoMicroservice/. .
+# Copiar apenas os arquivos do projeto principal (excluindo a pasta de testes)
+COPY ProducaoMicroservice/. . 
 
 WORKDIR "/src"
-RUN dotnet build "ProducaoMicroservice.csproj" -c $BUILD_CONFIGURATION -o /app/build
+RUN dotnet build "ProducaoMicroservice.csproj" -c Release -o /app/build
 
 FROM build AS publish
 RUN dotnet publish "ProducaoMicroservice.csproj" -c Release -o /app/publish
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS final
 WORKDIR /app
+
+# Copiar o conteúdo do publish para o container final
 COPY --from=publish /app/publish .
 
 # Definir variável de ambiente para o LocalStack
