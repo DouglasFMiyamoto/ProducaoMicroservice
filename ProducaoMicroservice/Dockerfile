@@ -11,7 +11,7 @@ RUN dotnet restore "ProducaoMicroservice.csproj"
 
 COPY ProducaoMicroservice/. .
 
-WORKDIR "/src/."
+WORKDIR "/src"
 RUN dotnet build "ProducaoMicroservice.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
