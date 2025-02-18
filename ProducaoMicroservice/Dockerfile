@@ -6,10 +6,10 @@ EXPOSE 8080
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-COPY ["ProducaoMicroservice.csproj", "."]
-RUN dotnet restore "ProducaoMicroservice/ProducaoMicroservice.csproj"
+COPY ["ProducaoMicroservice/ProducaoMicroservice.csproj", "."]
+RUN dotnet restore "ProducaoMicroservice.csproj"
 
-COPY . .
+COPY ProducaoMicroservice/. .
 
 WORKDIR "/src/."
 RUN dotnet build "ProducaoMicroservice.csproj" -c $BUILD_CONFIGURATION -o /app/build
